@@ -72,6 +72,23 @@
                     "command"
                 ]
             }
+        },
+        {
+            "name": "get_gemini_response",
+            "description": "Fetches a response from Google's Gemini 2.5 Flash model using the provided prompt and API key.",
+            "active": true,
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "prompt": {
+                        "type": "string",
+                        "description": "The text prompt to send to the Gemini model."
+                    }
+                },
+                "required": [
+                    "prompt"
+                ]
+            }
         }
     ]
 }

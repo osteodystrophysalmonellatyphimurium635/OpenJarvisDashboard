@@ -2,6 +2,28 @@
 
 MemoryGraph is a lightweight all-in-one interface for connecting AI providers and models to a live execution framework with visual graph-based introspection.
 
+## Quick install
+
+One-command setup (installs or uses existing XAMPP/Apache+PHP, starts the server, and prepares the app):
+
+```bash
+curl -sSL https://raw.githubusercontent.com/ZakRowton/LivingAIMemoryDashboard/master/install.sh | bash
+```
+
+Or clone first, then run the script from the project root:
+
+```bash
+git clone https://github.com/ZakRowton/LivingAIMemoryDashboard.git MemoryGraph
+cd MemoryGraph
+bash install.sh
+```
+
+- **Linux:** Tries XAMPP at `/opt/lampp`, or installs Apache + PHP via `apt`/`dnf`/`yum` and starts the service.
+- **macOS:** Uses XAMPP at `/Applications/XAMPP` if present, or Homebrew PHP and the built-in PHP server.
+- **Windows (Git Bash / WSL):** Looks for XAMPP at `C:\xampp`. If not found, the script prints a link to download XAMPP; after installing, run the script again or copy the app into `C:\xampp\htdocs\MemoryGraph`.
+
+After install, copy `.env.example` to `.env` (the script does this if missing), add your API keys, then open the URL the script prints (e.g. `http://localhost/MemoryGraph/` or `http://localhost:8080/`).
+
 It combines:
 
 - a beautiful interactive 3D memory graph
@@ -170,6 +192,10 @@ Key files and folders:
 - `.env` - local API key and secret storage
 
 ## Local Setup
+
+### 0. Quick install (recommended)
+
+Use the [Quick install](#quick-install) script above for automatic XAMPP/Apache+PHP detection, server start, and `.env` setup. Then continue from step 2 below to configure `.env`.
 
 ### 1. Clone the repository
 
