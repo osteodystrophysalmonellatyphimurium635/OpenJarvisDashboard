@@ -40,6 +40,25 @@ It combines:
 
 The goal is to give you a single control surface where an AI agent is not a black box. You can see its structure, inspect its tools, edit memory, manage MCP servers, run jobs in parallel, and watch activity animate across the graph in real time.
 
+## AI Capabilities
+
+The AI can create, manage, and extend its own runtime environment. All of the following are available as built-in tools the AI uses autonomously:
+
+| Domain | Capabilities |
+|--------|--------------|
+| **MCP Connections** | Create MCP servers, update config, set env vars and headers, enable/disable, delete. The AI can add new MCP connections and use tools exposed by active servers. |
+| **Tools** | Create custom PHP tools, edit tool code, edit registry entries (description/parameters), delete tools, list and execute tools. The AI can build new tools and fix them until they work. |
+| **Memory** | List, read, create, update, and delete memory files. Persistent markdown storage the AI uses for user preferences, context, and long-term knowledge. |
+| **Instructions** | Create, update, and delete instruction files. Documentation and procedural knowledge the AI follows. |
+| **Rules** | Create, update, and delete rules files. Behavioral constraints and guidelines the AI applies to its responses. |
+| **Research** | List, read, create, update, and delete research files. Structured research notes and findings the AI can store and reference. |
+| **Categories** | Create, list, and delete category nodes in the graph. Organize concepts (e.g. database, api, cache) as child nodes under the Agent. |
+| **Jobs** | Create, update, and delete job files. Launch parallel background jobs with step-by-step execution. |
+| **Providers & Models** | List providers and models, add custom providers, add models to providers, switch the active provider/model. |
+| **Chat History** | List past chat exchanges and retrieve full conversation content for context. |
+
+The AI is instructed to fix tool errors by editing code and retrying until success, and to test newly created tools immediately. It can run hundreds of tool calls in a single turn with bounded context to avoid memory buildup.
+
 ## Why This Project Exists
 
 Most AI interfaces only show a chat box and a response. MemoryGraph is designed to expose the whole agent runtime:
@@ -71,13 +90,16 @@ Current provider integrations include:
 
 The app renders a draggable, zoomable Three.js graph with a central `Agent` node and connected runtime domains:
 
-- `Memory`
-- `Tools`
-- `Instructions`
-- `MCPs`
-- `Jobs`
+- `Memory` – markdown memory files
+- `Tools` – custom PHP tools
+- `Instructions` – instruction and documentation files
+- `Research` – research notes and findings
+- `Rules` – behavioral rules and guidelines
+- `MCPs` – MCP server connections
+- `Jobs` – background job files
+- `Categories` – AI-created category nodes (e.g. database, api, cache)
 
-Each domain can expand into child nodes. Those nodes animate when being read, executed, or modified.
+Each domain can expand into child nodes. Category nodes appear as direct children of the Agent. All nodes animate when being read, executed, or modified.
 
 ### Tool framework
 
@@ -165,7 +187,7 @@ Important UI areas:
 
 MemoryGraph is not just a chatbot.
 
-It is a lightweight agent framework with a visual runtime layer. The AI can extend its own environment by creating tools, modifying memory, adding MCP connections, and running parallel jobs while the user remains in control through the graph UI.
+It is a lightweight agent framework with a visual runtime layer. The AI can extend its own environment by creating tools, modifying memory, adding MCP connections, defining rules and instructions, storing research, creating category nodes, and running parallel jobs—all while the user remains in control through the graph UI.
 
 ## Tech Stack
 
@@ -187,8 +209,12 @@ Key files and folders:
 - `tools/` - custom PHP tools
 - `memory/` - markdown memory files
 - `instructions/` - markdown instruction files
+- `research/` - markdown research files
+- `rules/` - markdown rules files
 - `jobs/` - markdown job files
 - `api_mcps.php` - MCP server management API
+- `api_categories.php` - category node API
+- `category_store.php` - category storage
 - `mcp_store.php` - MCP config storage
 - `mcp_client.php` - stdio MCP client bridge
 - `tool_calls.json` - custom tool registry
@@ -316,13 +342,12 @@ After cloning:
 
 MemoryGraph is built to be a beautiful top-tier open-source interface for transparent AI operation:
 
-- any provider
-- any model
+- any provider, any model
 - live graph visibility
-- extensible tools
-- persistent memory
-- MCP connectivity
+- AI-created tools, memories, rules, instructions, research
+- AI-managed MCP connections
+- AI-created category nodes
 - parallel jobs
-- AI-manageable runtime infrastructure
+- bounded context for long tool chains
 
-If you want an agent UI where you can actually see what the AI is doing, this project is built for that.
+If you want an agent UI where you can actually see what the AI is doing and let it extend its own capabilities, this project is built for that.
