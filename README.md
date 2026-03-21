@@ -1,8 +1,8 @@
 <div align="center">
-  <img src="LivingMemory.PNG" alt="Living AI Memory Dashboard" width="480" />
+  <img src="LivingMemory.PNG" alt="Open Jarvis Dashboard" width="480" />
 </div>
 
-# Living AI Memory Dashboard
+# Open Jarvis Dashboard
 
 MemoryGraph is a lightweight all-in-one interface for connecting AI providers and models to a live execution framework with visual graph-based introspection.
 
@@ -11,13 +11,13 @@ MemoryGraph is a lightweight all-in-one interface for connecting AI providers an
 One-command setup (installs or uses existing XAMPP/Apache+PHP, starts the server, and prepares the app):
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/ZakRowton/LivingAIMemoryDashboard/master/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/ZakRowton/OpenJarvisDashboard/master/install.sh | bash
 ```
 
 Or clone first, then run the script from the project root:
 
 ```bash
-git clone https://github.com/ZakRowton/LivingAIMemoryDashboard.git MemoryGraph
+git clone https://github.com/ZakRowton/OpenJarvisDashboard.git MemoryGraph
 cd MemoryGraph
 bash install.sh
 ```

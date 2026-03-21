@@ -6,9 +6,9 @@
 #
 set -e
 
-REPO_URL="${MEMORYGRAPH_REPO_URL:-https://github.com/ZakRowton/LivingAIMemoryDashboard.git}"
+REPO_URL="${MEMORYGRAPH_REPO_URL:-https://github.com/ZakRowton/OpenJarvisDashboard.git}"
 APP_NAME="MemoryGraph"
-CLONE_DIR_NAME="LivingAIMemoryDashboard"
+CLONE_DIR_NAME="OpenJarvisDashboard"
 DOCROOT_APP_DIR=""
 INSTALL_DIR=""
 XAMPP_FOUND=""
@@ -197,7 +197,7 @@ clone_in_htdocs_and_open() {
   saved_pwd="$(pwd)"
   if [[ ! -d "$target" ]]; then
     log "Cloning into XAMPP htdocs: $target"
-    if ! (cd "$HTDOCS" && git clone https://github.com/ZakRowton/LivingAIMemoryDashboard.git); then
+    if ! (cd "$HTDOCS" && git clone "$REPO_URL" "$CLONE_DIR_NAME"); then
       err "Could not clone. Install git and try again."
       cd "$saved_pwd" 2>/dev/null || true
       return 1
