@@ -12,7 +12,7 @@ if ($mgCronBt !== null && $mgCronBt !== '') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memory Graph</title>
+    <title>Jarvis</title>
     <script>
     (function () {
         var filter = function (orig, blocklist) {
@@ -28,7 +28,7 @@ if ($mgCronBt !== null && $mgCronBt !== '') {
                 orig.apply(console, arguments);
             };
         };
-        var blockSES = ['cdn.tailwindcss.com', 'Removing intrinsics', 'lockdown-install', 'SES Removing', 'getOrInsert', 'toTemporalInstant', 'intrinsics.%', 'unpermitted intrinsics'];
+        var blockSES = ['cdn.tailwindcss.com', 'Removing intrinsics', 'lockdown-install', 'SES Removing', 'SES Removing unpermitted', 'getOrInsert', 'toTemporalInstant', 'intrinsics.%', 'unpermitted intrinsics', 'MapPrototype%', 'WeakMapPrototype%', 'DatePrototype%.toTemporalInstant'];
         if (typeof console !== 'undefined') {
             if (console.log) console.log = filter(console.log, blockSES);
             if (console.warn) console.warn = filter(console.warn, blockSES);
@@ -36,9 +36,8 @@ if ($mgCronBt !== null && $mgCronBt !== '') {
         }
     })();
     </script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="vendor/bootstrap.min.css" rel="stylesheet">
+    <link href="vendor/fonts.css" rel="stylesheet">
     <style>
         :root {
             --gold: #d8dde4;
@@ -67,6 +66,150 @@ if ($mgCronBt !== null && $mgCronBt !== '') {
             background: #f5f0e6;
             background-image: radial-gradient(circle at top center, #ebe5d9 0%, #e8e0d2 100%);
         }
+
+        /* —— Jarvis brand title (centered HUD) —— */
+        .jarvis-brand-fixed {
+            position: fixed;
+            top: 14px;
+            left: 0;
+            width: 100%;
+            z-index: 95;
+            text-align: center;
+            pointer-events: none;
+        }
+        .jarvis-brand {
+            display: inline-block;
+            position: relative;
+            padding: 12px 28px 14px;
+            pointer-events: auto;
+        }
+        .jarvis-brand__halo {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 140%;
+            height: 200%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(ellipse at 50% 40%,
+                rgba(212, 175, 55, 0.22) 0%,
+                rgba(152, 192, 239, 0.12) 35%,
+                transparent 70%);
+            filter: blur(18px);
+            opacity: 0.38;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .jarvis-brand__title {
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cinzel', serif;
+            font-weight: 900;
+            font-size: clamp(1.65rem, 5vw, 2.85rem);
+            line-height: 1.05;
+            letter-spacing: 0.38em;
+            text-indent: 0.38em;
+            text-transform: uppercase;
+            border: none;
+        }
+        .jarvis-brand__chars {
+            display: inline-flex;
+            justify-content: center;
+            perspective: 720px;
+            transform-style: preserve-3d;
+        }
+        .jarvis-brand__char {
+            display: inline-block;
+            position: relative;
+            opacity: 0;
+            background: linear-gradient(
+                115deg,
+                #8a9bab 0%,
+                #e8eef4 18%,
+                #D4AF37 38%,
+                #F9F1D8 50%,
+                #D4AF37 62%,
+                #c5d2e0 82%,
+                #6b7c8f 100%
+            );
+            background-size: 220% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 14px rgba(212, 175, 55, 0.35)) drop-shadow(0 0 28px rgba(152, 192, 239, 0.15));
+            animation: jarvis-shine 5.5s ease-in-out infinite;
+        }
+        @keyframes jarvis-shine {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .jarvis-brand__rule {
+            position: relative;
+            z-index: 1;
+            height: 2px;
+            margin: 10px auto 0;
+            max-width: min(280px, 72vw);
+            border-radius: 2px;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.35), rgba(152, 192, 239, 0.45), rgba(212, 175, 55, 0.35), transparent);
+            transform-origin: center center;
+            overflow: hidden;
+            transform: scaleX(0);
+            opacity: 0;
+        }
+        .jarvis-brand__rule-scan {
+            display: block;
+            position: absolute;
+            left: -40%;
+            top: 0;
+            width: 38%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(249, 241, 216, 0.95), transparent);
+            animation: jarvis-scan 3.2s ease-in-out infinite;
+        }
+        @keyframes jarvis-scan {
+            0% { transform: translateX(0); opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { transform: translateX(320%); opacity: 0; }
+        }
+        .jarvis-brand__tag {
+            position: relative;
+            z-index: 1;
+            margin: 8px 0 0;
+            font-family: 'Cinzel', serif;
+            font-size: clamp(0.58rem, 1.5vw, 0.72rem);
+            font-weight: 700;
+            letter-spacing: 0.42em;
+            text-indent: 0.42em;
+            text-transform: uppercase;
+            color: rgba(214, 219, 226, 0.72);
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+            opacity: 0;
+        }
+        [data-theme="light"] .jarvis-brand__char {
+            background: linear-gradient(
+                115deg,
+                #5C2329 0%,
+                #B8962E 28%,
+                #722F37 48%,
+                #B8962E 55%,
+                #4a4238 100%
+            );
+            background-size: 220% 100%;
+            filter: drop-shadow(0 0 10px rgba(184, 150, 46, 0.35));
+        }
+        [data-theme="light"] .jarvis-brand__tag {
+            color: rgba(92, 35, 41, 0.75);
+        }
+        [data-theme="light"] .jarvis-brand__halo {
+            background: radial-gradient(ellipse at 50% 40%,
+                rgba(184, 150, 46, 0.2) 0%,
+                rgba(114, 47, 55, 0.1) 45%,
+                transparent 70%);
+        }
+
         [data-theme="light"] .provider-select {
             color-scheme: light;
             background-color: #f0ebe0;
@@ -1308,9 +1451,16 @@ if ($mgCronBt !== null && $mgCronBt !== '') {
         </aside>
     </div>
 
-    <div style="position:fixed;top:20px;left:0;width:100%;z-index:95;text-align:center;pointer-events:none;">
-        <div style="display:inline-block;pointer-events:auto;color:var(--gold);font-family:'Cinzel',serif;text-shadow:0 0 16px rgba(214,219,226,0.26);">
-            <h1>Neus Agent Dashboard</h1>
+    <div class="jarvis-brand-fixed">
+        <div class="jarvis-brand">
+            <div class="jarvis-brand__halo" aria-hidden="true"></div>
+            <h1 class="jarvis-brand__title">
+                <span class="jarvis-brand__chars" id="jarvis-title-chars">
+                    <span class="jarvis-brand__char">J</span><span class="jarvis-brand__char">A</span><span class="jarvis-brand__char">R</span><span class="jarvis-brand__char">V</span><span class="jarvis-brand__char">I</span><span class="jarvis-brand__char">S</span>
+                </span>
+            </h1>
+            <div class="jarvis-brand__rule" aria-hidden="true"><span class="jarvis-brand__rule-scan"></span></div>
+            <p class="jarvis-brand__tag">Agent dashboard</p>
         </div>
     </div>
 
@@ -1525,10 +1675,79 @@ if ($mgCronBt !== null && $mgCronBt !== '') {
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="vendor/jquery-3.7.1.min.js"></script>
+    <script src="vendor/gsap.min.js"></script>
+    <script>
+    (function () {
+        function bootJarvisTitle() {
+            var chars = document.querySelectorAll('.jarvis-brand__char');
+            if (!chars.length) return;
+            var rule = document.querySelector('.jarvis-brand__rule');
+            var tag = document.querySelector('.jarvis-brand__tag');
+            if (typeof gsap === 'undefined') {
+                Array.prototype.forEach.call(chars, function (el) { el.style.opacity = '1'; });
+                if (rule) { rule.style.opacity = '1'; rule.style.transform = 'scaleX(1)'; }
+                if (tag) tag.style.opacity = '0.9';
+                return;
+            }
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.set(chars, { opacity: 1, clearProps: 'all' });
+                if (rule) gsap.set(rule, { scaleX: 1, opacity: 1 });
+                if (tag) gsap.set(tag, { opacity: 0.9 });
+                return;
+            }
+            gsap.set(chars, { transformOrigin: '50% 100%' });
+            gsap.fromTo(chars,
+                { opacity: 0, y: 36, rotateX: -88, filter: 'blur(14px)' },
+                {
+                    opacity: 1, y: 0, rotateX: 0, filter: 'blur(0px)',
+                    duration: 0.95,
+                    stagger: { each: 0.08, from: 'start' },
+                    ease: 'power4.out',
+                    delay: 0.12,
+                    clearProps: 'filter'
+                }
+            );
+            gsap.fromTo('.jarvis-brand__rule',
+                { scaleX: 0, opacity: 0 },
+                { scaleX: 1, opacity: 1, duration: 1.15, ease: 'power3.inOut', delay: 0.5 }
+            );
+            gsap.fromTo('.jarvis-brand__tag',
+                { opacity: 0, y: 10, letterSpacing: '0.55em' },
+                { opacity: 0.9, y: 0, letterSpacing: '0.42em', duration: 0.75, ease: 'power2.out', delay: 1.05 }
+            );
+            gsap.fromTo('.jarvis-brand__halo',
+                { opacity: 0, scale: 0.6 },
+                { opacity: 0.42, scale: 1, duration: 1.4, ease: 'power2.out', delay: 0.05 }
+            );
+            gsap.to('.jarvis-brand__halo', {
+                opacity: 0.55,
+                scale: 1.12,
+                duration: 2.8,
+                repeat: -1,
+                yoyo: true,
+                ease: 'sine.inOut',
+                delay: 1.5
+            });
+            gsap.to('.jarvis-brand__title', {
+                y: -2,
+                duration: 3.5,
+                repeat: -1,
+                yoyo: true,
+                ease: 'sine.inOut',
+                delay: 2
+            });
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bootJarvisTitle);
+        } else {
+            bootJarvisTitle();
+        }
+    })();
+    </script>
+    <script src="vendor/bootstrap.bundle.min.js"></script>
+    <script src="vendor/three.min.js"></script>
+    <script src="vendor/OrbitControls.js"></script>
     <script src="AgentState.js"></script>
     <script>
     window.MemoryGraphUpdateLegend = function (categories) {
@@ -1713,8 +1932,8 @@ if ($mgCronBt !== null && $mgCronBt !== '') {
         };
     })();
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+    <script src="vendor/marked.min.js"></script>
+    <script src="vendor/purify.min.js"></script>
     <script src="js/chat.js"></script>
     <script src="js/jobs.js"></script>
     <script>
