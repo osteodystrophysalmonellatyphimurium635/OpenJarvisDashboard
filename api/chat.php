@@ -1574,6 +1574,17 @@ function lastToolResultDisplayText(string $toolName, array $toolResult): string 
         $e = $toolResult['error'];
         return is_scalar($e) ? (string) $e : (string) json_encode($e, JSON_UNESCAPED_UNICODE);
     }
+    // Cron/UI fallback: successful research writes often carry huge `content`; json_encode can fail on bad UTF-8 and return ''.
+    $researchWriteTools = ['add_research_file', 'create_research_file', 'update_research_file'];
+    if (in_array($toolName, $researchWriteTools, true)) {
+        $n = isset($toolResult['name']) ? (string) $toolResult['name'] : '';
+        if ($n !== '') {
+            return 'Saved research file: ' . $n;
+        }
+    }
+    if ($toolName === 'delete_research_file' && isset($toolResult['deleted']) && is_string($toolResult['deleted']) && $toolResult['deleted'] !== '') {
+        return 'Deleted research file: ' . $toolResult['deleted'];
+    }
     $r = $toolResult['result'] ?? null;
     if (is_array($r)) {
         if ($toolName === 'etl_payroll_tool') {
@@ -1587,7 +1598,19 @@ function lastToolResultDisplayText(string $toolName, array $toolResult): string 
     if (is_scalar($r)) {
         return (string) $r;
     }
-    return '';
+    $summary = $toolResult;
+    if (isset($summary['content']) && is_string($summary['content']) && strlen($summary['content']) > 800) {
+        $summary['content'] = '[omitted ' . strlen($toolResult['content']) . ' characters]';
+    }
+    $enc = json_encode($summary, JSON_UNESCAPED_UNICODE);
+    if (!is_string($enc) || $enc === '' || $enc === '[]') {
+        return '';
+    }
+    $max = 4500;
+    if (strlen($enc) > $max) {
+        return substr($enc, 0, $max) . "\n…[truncated]";
+    }
+    return $enc;
 }
 
 /** Build the user/tool message content for a tool result; when result has 'error', append fix-and-retry directive. */
@@ -1734,6 +1757,59 @@ function sanitizeConversationForApi(array $conversation): array {
     return $out;
 }
 
+/**
+ * Extract visible assistant text from OpenAI-style chat message (handles string content and part arrays).
+ */
+function openai_extract_assistant_message_text(?array $message): string {
+    if (!is_array($message)) {
+        return '';
+    }
+    if (!empty($message['refusal']) && is_string($message['refusal'])) {
+        return trim((string) $message['refusal']);
+    }
+    // Some OpenAI-compatible / reasoning gateways expose prose only here.
+    if (isset($message['reasoning']) && is_string($message['reasoning']) && trim($message['reasoning']) !== '') {
+        return trim($message['reasoning']);
+    }
+    if (isset($message['reasoning_content']) && is_string($message['reasoning_content']) && trim($message['reasoning_content']) !== '') {
+        return trim($message['reasoning_content']);
+    }
+    $rawContent = $message['content'] ?? null;
+    if (is_string($rawContent)) {
+        return $rawContent;
+    }
+    if (is_array($rawContent)) {
+        $assistantContent = '';
+        foreach ($rawContent as $part) {
+            if (!is_array($part)) {
+                continue;
+            }
+            $type = (string) ($part['type'] ?? '');
+            if (isset($part['text']) && (is_string($part['text']) || is_numeric($part['text']))) {
+                $assistantContent .= (string) $part['text'];
+                continue;
+            }
+            // Nested text objects (some providers)
+            if (isset($part['text']) && is_array($part['text']) && isset($part['text']['value']) && is_string($part['text']['value'])) {
+                $assistantContent .= $part['text']['value'];
+                continue;
+            }
+            if (isset($part['content']) && is_string($part['content'])) {
+                $assistantContent .= $part['content'];
+                continue;
+            }
+            if (($type === 'text' || $type === 'output_text' || $type === 'input_text' || $type === 'reasoning') && isset($part['text'])) {
+                $assistantContent .= is_scalar($part['text']) ? (string) $part['text'] : '';
+            }
+        }
+        return $assistantContent;
+    }
+    if ($rawContent === null || $rawContent === false) {
+        return '';
+    }
+    return (string) $rawContent;
+}
+
 function requestOpenAiCompatible(array $provider, string $model, array $conversation, float $temperature, array $tools): array {
     $payload = [
         'model' => $model,
@@ -1754,7 +1830,7 @@ function requestOpenAiCompatible(array $provider, string $model, array $conversa
             'Authorization: Bearer ' . $provider['apiKey'],
         ],
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 120,
+        CURLOPT_TIMEOUT => 600,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
     ]);
     $response = curl_exec($ch);
@@ -1805,7 +1881,7 @@ function requestGemini(array $provider, string $model, array $conversation, floa
         CURLOPT_POSTFIELDS => json_encode($payload),
         CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 120,
+        CURLOPT_TIMEOUT => 600,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
     ]);
     $response = curl_exec($ch);
@@ -2000,19 +2076,7 @@ while (true) {
             exit;
         }
 
-        $rawContent = $message['content'] ?? null;
-        if (is_array($rawContent)) {
-            $assistantContent = '';
-            foreach ($rawContent as $part) {
-                if (is_array($part) && isset($part['type'], $part['text']) && $part['type'] === 'text') {
-                    $assistantContent .= (string) $part['text'];
-                }
-            }
-        } elseif ($rawContent === null || $rawContent === false) {
-            $assistantContent = '';
-        } else {
-            $assistantContent = (string) $rawContent;
-        }
+        $assistantContent = openai_extract_assistant_message_text($message);
         $toolCalls = $message['tool_calls'] ?? [];
 
         if (!empty($toolCalls) && is_array($toolCalls)) {
@@ -2350,13 +2414,20 @@ if (trim($finalContent) === '' && $lastToolResultText !== '') {
     $finalContent = $lastToolResultText;
 }
 
+$memoryGraphMeta = [];
+if (trim($finalContent) === '') {
+    $memoryGraphMeta['empty_assistant'] = true;
+    $memoryGraphMeta['hint'] = 'The model returned no visible assistant text. Check provider, model ID, API key, and logs. If the job only used tools, ensure research/memory tools are enabled. Request ID: ' . $requestId;
+    $finalContent = $memoryGraphMeta['hint'];
+}
+
 clearStatusFlags($status);
 clearCurrentExecutionStatus($status, $requestId);
 writeStatus($requestId, $status);
 
 $finalContent = normalizeAssistantFormatting($finalContent);
 
-if ($initialUserContent !== '' && trim($finalContent) !== '') {
+if ($initialUserContent !== '' && trim($finalContent) !== '' && empty($memoryGraphMeta['empty_assistant'])) {
     append_chat_exchange($requestId, $initialUserContent, $finalContent, $chatSessionIdInput);
 }
 
@@ -2371,6 +2442,9 @@ $response = [
     ],
     'request_id' => $requestId,
 ];
+if (!empty($memoryGraphMeta)) {
+    $response['memory_graph'] = $memoryGraphMeta;
+}
 if (!empty($jobsToRun)) {
     $response['jobToRun'] = $jobsToRun;
 }

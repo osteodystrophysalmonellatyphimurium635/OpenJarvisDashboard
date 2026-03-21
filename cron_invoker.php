@@ -281,8 +281,41 @@ function mg_cron_invoke_agent_job(array $job): array {
             $resultForUi['error'] = (string) $err;
             return ['ok' => false, 'error' => $resultForUi['error'], 'httpCode' => $code, 'requestId' => $requestId];
         }
-        $content = (string) ($decoded['choices'][0]['message']['content'] ?? '');
-        $summary = trim($content) !== '' ? mb_substr(trim($content), 0, 2000) : '(empty assistant content)';
+        $mg = isset($decoded['memory_graph']) && is_array($decoded['memory_graph']) ? $decoded['memory_graph'] : [];
+        if (!empty($mg['empty_assistant'])) {
+            $hint = isset($mg['hint']) && is_string($mg['hint']) ? trim($mg['hint']) : '';
+            $errText = $hint !== '' ? $hint : 'Empty assistant response from chat API (model returned no visible text). Check provider, tools, and logs; the job was not marked successful.';
+            $resultForUi['ok'] = false;
+            $resultForUi['error'] = $errText;
+            $resultForUi['assistantContent'] = $errText;
+            $resultForUi['summary'] = mb_substr($errText, 0, 2000);
+            return ['ok' => false, 'error' => $errText, 'httpCode' => $code, 'requestId' => $requestId, 'summary' => $resultForUi['summary']];
+        }
+        $msg = $decoded['choices'][0]['message'] ?? null;
+        $content = '';
+        if (is_array($msg)) {
+            $raw = $msg['content'] ?? null;
+            if (is_string($raw)) {
+                $content = $raw;
+            } elseif (is_array($raw)) {
+                foreach ($raw as $part) {
+                    if (is_array($part) && isset($part['text']) && (is_string($part['text']) || is_numeric($part['text']))) {
+                        $content .= (string) $part['text'];
+                    }
+                }
+            } elseif ($raw !== null && $raw !== false) {
+                $content = (string) $raw;
+            }
+        }
+        $content = trim($content);
+        if ($content === '') {
+            $resultForUi['ok'] = false;
+            $resultForUi['error'] = 'Empty assistant response from chat API (model returned no visible text). Check provider, tools, and logs; the job was not marked successful.';
+            $resultForUi['assistantContent'] = '';
+            $resultForUi['summary'] = $resultForUi['error'];
+            return ['ok' => false, 'error' => $resultForUi['error'], 'httpCode' => $code, 'requestId' => $requestId];
+        }
+        $summary = mb_substr($content, 0, 2000);
         $resultForUi['ok'] = true;
         $resultForUi['assistantContent'] = $content;
         $resultForUi['summary'] = $summary;

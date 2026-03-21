@@ -12,7 +12,7 @@ if ($mgCronBt !== null && $mgCronBt !== '') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jarvis</title>
+    <title>Open Jarvis Dashboard</title>
     <script>
     (function () {
         var filter = function (orig, blocklist) {
@@ -78,7 +78,9 @@ if ($mgCronBt !== null && $mgCronBt !== '') {
             pointer-events: none;
         }
         .jarvis-brand {
-            display: inline-block;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
             position: relative;
             padding: 12px 28px 14px;
             pointer-events: auto;
@@ -104,53 +106,71 @@ if ($mgCronBt !== null && $mgCronBt !== '') {
             z-index: 1;
             margin: 0;
             padding: 0;
+            border: none;
+            max-width: min(640px, 94vw);
+        }
+        .jarvis-brand__title-main {
+            display: block;
             font-family: 'Cinzel', serif;
             font-weight: 900;
-            font-size: clamp(1.65rem, 5vw, 2.85rem);
-            line-height: 1.05;
-            letter-spacing: 0.38em;
-            text-indent: 0.38em;
-            text-transform: uppercase;
-            border: none;
+            font-size: clamp(1.15rem, 3.2vw, 1.85rem);
+            line-height: 1.15;
+            letter-spacing: 0.12em;
+            text-transform: none;
+            opacity: 1;
+            color: #eef4fa;
+            -webkit-text-fill-color: #f2f6fb;
+            text-shadow:
+                0 0 10px rgba(212, 175, 55, 0.65),
+                0 0 22px rgba(212, 175, 55, 0.35),
+                0 0 36px rgba(152, 192, 239, 0.12),
+                0 1px 0 rgba(0, 0, 0, 0.45);
+            animation: jarvis-title-pulse 4.2s ease-in-out infinite;
         }
-        .jarvis-brand__chars {
-            display: inline-flex;
-            justify-content: center;
-            perspective: 720px;
-            transform-style: preserve-3d;
-        }
-        .jarvis-brand__char {
-            display: inline-block;
+        .jarvis-brand__tagline {
             position: relative;
-            opacity: 0;
-            background: linear-gradient(
-                115deg,
-                #8a9bab 0%,
-                #e8eef4 18%,
-                #D4AF37 38%,
-                #F9F1D8 50%,
-                #D4AF37 62%,
-                #c5d2e0 82%,
-                #6b7c8f 100%
-            );
-            background-size: 220% 100%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 14px rgba(212, 175, 55, 0.35)) drop-shadow(0 0 28px rgba(152, 192, 239, 0.15));
-            animation: jarvis-shine 5.5s ease-in-out infinite;
+            z-index: 1;
+            display: block;
+            margin: 8px 0 0;
+            padding: 0 6px;
+            max-width: min(640px, 94vw);
+            font-family: 'Playfair Display', serif;
+            font-weight: 400;
+            font-size: clamp(0.68rem, 1.65vw, 0.9rem);
+            line-height: 1.4;
+            letter-spacing: 0.04em;
+            font-style: italic;
+            color: rgba(138, 115, 38, 0.92);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+            opacity: 1;
         }
-        @keyframes jarvis-shine {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+        @keyframes jarvis-title-pulse {
+            0%, 100% {
+                color: #e8eef4;
+                -webkit-text-fill-color: #e8eef4;
+                text-shadow:
+                    0 0 8px rgba(212, 175, 55, 0.5),
+                    0 0 20px rgba(212, 175, 55, 0.28),
+                    0 0 32px rgba(152, 192, 239, 0.1),
+                    0 1px 0 rgba(0, 0, 0, 0.45);
+            }
+            50% {
+                color: #ffffff;
+                -webkit-text-fill-color: #ffffff;
+                text-shadow:
+                    0 0 14px rgba(212, 175, 55, 0.85),
+                    0 0 28px rgba(212, 175, 55, 0.45),
+                    0 0 48px rgba(249, 241, 216, 0.2),
+                    0 1px 0 rgba(0, 0, 0, 0.4);
+            }
         }
         .jarvis-brand__rule {
             position: relative;
             z-index: 1;
             height: 2px;
             margin: 10px auto 0;
-            max-width: min(280px, 72vw);
+            width: 100%;
+            max-width: min(520px, 88vw);
             border-radius: 2px;
             background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.35), rgba(152, 192, 239, 0.45), rgba(212, 175, 55, 0.35), transparent);
             transform-origin: center center;
@@ -174,34 +194,36 @@ if ($mgCronBt !== null && $mgCronBt !== '') {
             85% { opacity: 1; }
             100% { transform: translateX(320%); opacity: 0; }
         }
-        .jarvis-brand__tag {
-            position: relative;
-            z-index: 1;
-            margin: 8px 0 0;
-            font-family: 'Cinzel', serif;
-            font-size: clamp(0.58rem, 1.5vw, 0.72rem);
-            font-weight: 700;
-            letter-spacing: 0.42em;
-            text-indent: 0.42em;
-            text-transform: uppercase;
-            color: rgba(214, 219, 226, 0.72);
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
-            opacity: 0;
+        [data-theme="light"] .jarvis-brand__title-main {
+            animation-name: jarvis-title-pulse-light;
+            color: #3d1a20;
+            -webkit-text-fill-color: #4a2329;
+            text-shadow:
+                0 0 10px rgba(184, 150, 46, 0.45),
+                0 0 22px rgba(184, 150, 46, 0.2),
+                0 1px 0 rgba(255, 255, 255, 0.35);
         }
-        [data-theme="light"] .jarvis-brand__char {
-            background: linear-gradient(
-                115deg,
-                #5C2329 0%,
-                #B8962E 28%,
-                #722F37 48%,
-                #B8962E 55%,
-                #4a4238 100%
-            );
-            background-size: 220% 100%;
-            filter: drop-shadow(0 0 10px rgba(184, 150, 46, 0.35));
+        @keyframes jarvis-title-pulse-light {
+            0%, 100% {
+                color: #4a2329;
+                -webkit-text-fill-color: #4a2329;
+                text-shadow:
+                    0 0 8px rgba(184, 150, 46, 0.35),
+                    0 0 18px rgba(184, 150, 46, 0.15),
+                    0 1px 0 rgba(255, 255, 255, 0.4);
+            }
+            50% {
+                color: #5C2329;
+                -webkit-text-fill-color: #5C2329;
+                text-shadow:
+                    0 0 14px rgba(184, 150, 46, 0.55),
+                    0 0 26px rgba(184, 150, 46, 0.25),
+                    0 1px 0 rgba(255, 255, 255, 0.5);
+            }
         }
-        [data-theme="light"] .jarvis-brand__tag {
-            color: rgba(92, 35, 41, 0.75);
+        [data-theme="light"] .jarvis-brand__tagline {
+            color: rgba(58, 28, 34, 0.92);
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.35);
         }
         [data-theme="light"] .jarvis-brand__halo {
             background: radial-gradient(ellipse at 50% 40%,
@@ -1455,12 +1477,10 @@ if ($mgCronBt !== null && $mgCronBt !== '') {
         <div class="jarvis-brand">
             <div class="jarvis-brand__halo" aria-hidden="true"></div>
             <h1 class="jarvis-brand__title">
-                <span class="jarvis-brand__chars" id="jarvis-title-chars">
-                    <span class="jarvis-brand__char">J</span><span class="jarvis-brand__char">A</span><span class="jarvis-brand__char">R</span><span class="jarvis-brand__char">V</span><span class="jarvis-brand__char">I</span><span class="jarvis-brand__char">S</span>
-                </span>
+                <span class="jarvis-brand__title-main font-display">Open Jarvis Dashboard</span>
             </h1>
             <div class="jarvis-brand__rule" aria-hidden="true"><span class="jarvis-brand__rule-scan"></span></div>
-            <p class="jarvis-brand__tag">Agent dashboard</p>
+            <p class="jarvis-brand__tagline font-serif">An open-source Lightweight AI Framework For Managing MCPs, Skills, Memory, Research and More</p>
         </div>
     </div>
 
@@ -1680,41 +1700,33 @@ if ($mgCronBt !== null && $mgCronBt !== '') {
     <script>
     (function () {
         function bootJarvisTitle() {
-            var chars = document.querySelectorAll('.jarvis-brand__char');
-            if (!chars.length) return;
+            var mainEl = document.querySelector('.jarvis-brand__title-main');
+            var taglineEl = document.querySelector('.jarvis-brand__tagline');
+            if (!mainEl || !taglineEl) return;
             var rule = document.querySelector('.jarvis-brand__rule');
-            var tag = document.querySelector('.jarvis-brand__tag');
+            var logoEls = [mainEl, taglineEl];
             if (typeof gsap === 'undefined') {
-                Array.prototype.forEach.call(chars, function (el) { el.style.opacity = '1'; });
+                mainEl.style.opacity = '1';
+                taglineEl.style.opacity = '1';
                 if (rule) { rule.style.opacity = '1'; rule.style.transform = 'scaleX(1)'; }
-                if (tag) tag.style.opacity = '0.9';
                 return;
             }
             if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                gsap.set(chars, { opacity: 1, clearProps: 'all' });
+                gsap.set(logoEls, { opacity: 1 });
                 if (rule) gsap.set(rule, { scaleX: 1, opacity: 1 });
-                if (tag) gsap.set(tag, { opacity: 0.9 });
                 return;
             }
-            gsap.set(chars, { transformOrigin: '50% 100%' });
-            gsap.fromTo(chars,
-                { opacity: 0, y: 36, rotateX: -88, filter: 'blur(14px)' },
-                {
-                    opacity: 1, y: 0, rotateX: 0, filter: 'blur(0px)',
-                    duration: 0.95,
-                    stagger: { each: 0.08, from: 'start' },
-                    ease: 'power4.out',
-                    delay: 0.12,
-                    clearProps: 'filter'
-                }
+            gsap.fromTo(mainEl,
+                { opacity: 0 },
+                { opacity: 1, duration: 0.55, ease: 'power2.out', delay: 0.08 }
             );
             gsap.fromTo('.jarvis-brand__rule',
                 { scaleX: 0, opacity: 0 },
-                { scaleX: 1, opacity: 1, duration: 1.15, ease: 'power3.inOut', delay: 0.5 }
+                { scaleX: 1, opacity: 1, duration: 1.15, ease: 'power3.inOut', delay: 0.32 }
             );
-            gsap.fromTo('.jarvis-brand__tag',
-                { opacity: 0, y: 10, letterSpacing: '0.55em' },
-                { opacity: 0.9, y: 0, letterSpacing: '0.42em', duration: 0.75, ease: 'power2.out', delay: 1.05 }
+            gsap.fromTo(taglineEl,
+                { opacity: 0 },
+                { opacity: 1, duration: 0.65, ease: 'power2.out', delay: 1.05 }
             );
             gsap.fromTo('.jarvis-brand__halo',
                 { opacity: 0, scale: 0.6 },
@@ -1729,13 +1741,13 @@ if ($mgCronBt !== null && $mgCronBt !== '') {
                 ease: 'sine.inOut',
                 delay: 1.5
             });
-            gsap.to('.jarvis-brand__title', {
-                y: -2,
-                duration: 3.5,
+            gsap.to('.jarvis-brand', {
+                marginTop: -3,
+                duration: 3.2,
                 repeat: -1,
                 yoyo: true,
                 ease: 'sine.inOut',
-                delay: 2
+                delay: 1.8
             });
         }
         if (document.readyState === 'loading') {
